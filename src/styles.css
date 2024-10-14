@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.ProseMirror p:empty::before {
+  content: '';
+  display: inline-block;
+}
