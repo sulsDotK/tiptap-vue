@@ -17,26 +17,6 @@
 import { NodeViewContent, NodeViewWrapper } from '@tiptap/vue-3'
 import { defineProps, ref, computed } from 'vue'
 
-// export default {
-//   components: {
-//     NodeViewWrapper,
-//     NodeViewContent
-//   },
-
-//   props: nodeViewProps,
-//   methods: {
-//     increase() {
-//       this.updateAttributes({
-//         count: this.node.attrs.count + 1
-//       })
-//     }
-//   }
-// }
-// const props = defineProps < NodeViewProps > {}
-
-const selectedOption = ref('')
-const count = ref(0)
-
 const props = defineProps({
   node: {
     type: Object,
@@ -53,11 +33,4 @@ const state = computed(() => ({
   second: props.node.attrs.second,
   operator: props.node.attrs.operator
 }))
-// const state = computed(() => JSON.parse(props.node.attrs.value))
-
-const increaseCount = () => {
-  props.updateAttributes({
-    count: props.node.attrs.count + 1
-  })
-}
 </script>
