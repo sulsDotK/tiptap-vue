@@ -7,38 +7,26 @@
       <button
         @click="editor.chain().focus().toggleBold().run()"
         :disabled="!editor.can().chain().focus().toggleBold().run()"
-        :class="{ 'bg-gray-200 rounded': editor.isActive('bold') }"
-        class="bg-cyan-700 hover:bg-cyan-800 text-white font-bold py-2 px-4 rounded"
+        :class="[commandBarButtonClass, { [commandBarActiveClass]: editor.isActive('bold') }]"
       >
         Bold
       </button>
       <button
         @click="editor.chain().focus().toggleItalic().run()"
         :disabled="!editor.can().chain().focus().toggleItalic().run()"
-        :class="{ 'bg-gray-200 rounded': editor.isActive('italic') }"
-        class="bg-cyan-700 hover:bg-cyan-800 text-white font-bold py-2 px-4 rounded"
+        :class="[commandBarButtonClass, { [commandBarActiveClass]: editor.isActive('italic') }]"
       >
         Italic
       </button>
       <button
         @click="editor.chain().focus().setHardBreak().run()"
         :disabled="!editor.can().chain().focus().setHardBreak().run()"
-        class="bg-cyan-700 hover:bg-cyan-800 text-white font-bold py-2 px-4 rounded"
+        :class="commandBarButtonClass"
       >
         Line break
       </button>
-      <button
-        @click="showValuePrompt"
-        class="bg-cyan-700 hover:bg-cyan-800 text-white font-bold py-2 px-4 rounded"
-      >
-        Add value
-      </button>
-      <button
-        @click="showConditionalPrompt"
-        class="bg-cyan-700 hover:bg-cyan-800 text-white font-bold py-2 px-4 rounded"
-      >
-        Add condition
-      </button>
+      <button @click="showValuePrompt" :class="commandBarButtonClass">Add value</button>
+      <button @click="showConditionalPrompt" :class="commandBarButtonClass">Add condition</button>
     </section>
     <editor-content :editor="editor" />
     <br />
@@ -75,6 +63,9 @@ import { ref, computed } from 'vue'
 import ValueComponent from '../nodes/value-node.js'
 import ConditionalNode from '../nodes/conditional-node.js'
 import ComparisonModal from './ComparisonModal.vue'
+
+const commandBarButtonClass = 'bg-cyan-600 hover:bg-cyan-800 text-white font-bold py-2 px-4 rounded'
+const commandBarActiveClass = 'bg-cyan-800 rounded'
 
 const editor = useEditor({
   extensions: [StarterKit, ValueComponent, ConditionalNode],
