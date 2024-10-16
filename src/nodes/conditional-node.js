@@ -1,25 +1,18 @@
+// conditional-node.js
 import { mergeAttributes, Node } from '@tiptap/core'
 import { VueNodeViewRenderer } from '@tiptap/vue-3'
-
 import Component from '../components/ConditionalComponent.vue'
 
 export default Node.create({
   name: 'conditionalComponent',
   group: 'block',
-  // content: 'block+',
   content: 'inline*',
   inline: false,
   atom: false,
   addAttributes() {
     return {
-      first: {
-        default: 0
-      },
-      second: {
-        default: 0
-      },
-      operator: {
-        default: ''
+      conditions: {
+        default: []
       }
     }
   },
@@ -28,23 +21,27 @@ export default Node.create({
       {
         tag: 'conditional-component',
         getAttrs: (dom) => ({
-          first: dom.getAttribute('first'),
-          second: dom.getAttribute('second'),
-          operator: dom.getAttribute('operator')
+          conditions: JSON.parse(dom.getAttribute('conditions'))
         })
       }
     ]
   },
+  // ensure that when Tiptap serializes your node back to HTML, it uses JSON.stringify to correctly serialize the conditions object as a string.
   renderHTML({ HTMLAttributes }) {
-    return ['conditional-component', mergeAttributes(HTMLAttributes), 0]
+    // Use JSON.stringify to serialize the conditions object/array
+    return [
+      'conditional-component',
+      mergeAttributes({
+        ...HTMLAttributes,
+        conditions: JSON.stringify(HTMLAttributes.conditions)
+      }),
+      0
+    ]
   },
   addNodeView() {
     return VueNodeViewRenderer(Component, {
-      // Pass the node attributes as props to your Vue component
       props: ({ node }) => ({
-        first: node.attrs.first,
-        second: node.attrs.second,
-        operator: node.attrs.operator
+        conditions: node.attrs.conditions
       })
     })
   }

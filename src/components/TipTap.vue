@@ -75,7 +75,7 @@ const editor = useEditor({
         'border border-gray-400 p-4 min-w-48 max-h-96 min-h-48 overflow-y-auto outline-none max-w-none'
     }
   },
-  content: `<conditional-component first="1" second="2" operator="<">The fee is <strong><value-component value="delayedSettlement.fee"></value-component></strong> $</conditional-component>`,
+  content: ``,
   onUpdate: ({ editor }) => {
     // console.log(editor.getHTML())
     // state.value = editor.getHTML()
@@ -103,10 +103,10 @@ const fields = {
   // Other fields...
 }
 
-function handleAddConditionalLogic(values) {
-  console.log('Selected values:', values)
+function handleAddConditionalLogic(conditions) {
+  console.log('Selected conditions:', conditions)
   showConditionalModal.value = false
-  addConditionalLogic(values.first, values.second, values.operator)
+  addConditionalLogic(conditions)
 }
 
 function addValueComponent() {
@@ -116,14 +116,11 @@ function addValueComponent() {
   })
 }
 
-function addConditionalLogic(first, second, operator) {
+function addConditionalLogic(conditions) {
   editor.value.commands.insertContent({
     type: 'conditionalComponent',
     attrs: {
-      // value: JSON.stringify({ first: 1, second: 2, operator: userInput.value }),
-      first,
-      second,
-      operator
+      conditions
     }
   })
 }
