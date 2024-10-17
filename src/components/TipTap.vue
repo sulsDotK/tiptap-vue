@@ -61,27 +61,30 @@ import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import { ref, computed } from 'vue'
 import ValueComponent from '../nodes/value-node.js'
-import ConditionalNode from '../nodes/conditional-node.js'
+import ConditionalNode from '../nodes/conditional/conditional-node.js'
+import IfNode from '../nodes/conditional/if-condition-node.js'
+import ElseIfNode from '../nodes/conditional/else-if-condition-node.js'
+import ElseNode from '../nodes/conditional/else-condition-node.js'
 import ComparisonModal from './ComparisonModal.vue'
 
 const commandBarButtonClass = 'bg-cyan-600 hover:bg-cyan-800 text-white font-bold py-2 px-4 rounded'
 const commandBarActiveClass = 'bg-cyan-800 rounded'
 
 const editor = useEditor({
-  extensions: [StarterKit, ValueComponent, ConditionalNode],
+  extensions: [StarterKit, ValueComponent, ConditionalNode, IfNode, ElseIfNode, ElseNode],
   editorProps: {
     attributes: {
       class:
         'border border-gray-400 p-4 min-w-48 max-h-96 min-h-48 overflow-y-auto outline-none max-w-none'
     }
   },
-  content: ``,
+  content: ` <conditional-component><if-condition first="client.intendsWorks" second="delayedSettlement.fee" operator=">"><strong>If condional logic</strong></if-condition><else-if-condition first="client.intendsWorks" second="client.intendsWorks" operator=">"><em>adasadasdasdaadadadad</em><br><value-component value="asd"></value-component></else-if-condition><else-condition>dasdasdasdasdadaad<br></else-condition></conditional-component>`,
   onUpdate: ({ editor }) => {
     // console.log(editor.getHTML())
     // state.value = editor.getHTML()
     jsonState.value = editor.getJSON()
   },
-  onContentError: ({ editor, error, disableCollaboration }) => {
+  onContentError: ({ error }) => {
     // The editor content does not match the schema.
     console.log(error)
   }
@@ -117,11 +120,42 @@ function addValueComponent() {
 }
 
 function addConditionalLogic(conditions) {
+  const content = [
+    {
+      type: 'ifCondition',
+      attrs: {
+        first: conditions.if.first,
+        second: conditions.if.second,
+        operator: conditions.if.operator
+      }
+    },
+    ...conditions.elseIf.map((cond) => ({
+      type: 'elseIfCondition',
+      attrs: {
+        first: cond.first,
+        second: cond.second,
+        operator: cond.operator
+      }
+    })),
+    conditions.else
+      ? {
+          type: 'elseCondition',
+          content: [
+            {
+              type: 'text',
+              text: conditions.else.content
+            }
+          ]
+        }
+      : null
+  ].filter(Boolean) // Filter out null values if there's no else block
+
+  console.log(content)
+
+  // Insert the parent conditionalComponent first
   editor.value.commands.insertContent({
     type: 'conditionalComponent',
-    attrs: {
-      conditions
-    }
+    content
   })
 }
 

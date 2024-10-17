@@ -175,23 +175,23 @@ const removeElse = () => {
 }
 
 const add = () => {
-  const conditions = []
+  const conditions = {}
 
   // Add the 'if' condition
   if (ifCondition.value) {
-    conditions.push({
-      type: 'if',
+    conditions.if = {
       first: ifCondition.value.field1,
       second: ifCondition.value.field2,
       operator: ifCondition.value.operator
-    })
+    }
   }
+
+  conditions.elseIf = []
 
   // Add 'else if' conditions if any exist
   if (elseIfConditions.value.length > 0) {
     elseIfConditions.value.forEach((cond) => {
-      conditions.push({
-        type: 'else if',
+      conditions.elseIf.push({
         first: cond.field1,
         second: cond.field2,
         operator: cond.operator
@@ -201,10 +201,9 @@ const add = () => {
 
   // Add 'else' condition if it exists
   if (hasElseBlock.value) {
-    conditions.push({
-      type: 'else',
+    conditions.else = {
       content: elseBlockContent.value
-    })
+    }
   }
 
   emit('add', conditions)
