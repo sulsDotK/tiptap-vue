@@ -9,7 +9,7 @@
         <span class="w-16">If&nbsp;</span>
         <div class="flex gap-4 w-full">
           <v-select
-            v-model="ifCondition.field1"
+            v-model="ifCondition.first"
             :options="fields"
             class="w-1/3"
             placeholder="Select field"
@@ -23,7 +23,7 @@
             :reduce="(option) => option.value"
           />
           <v-select
-            v-model="ifCondition.field2"
+            v-model="ifCondition.second"
             :options="fields"
             class="w-1/3"
             placeholder="Select field"
@@ -115,10 +115,10 @@
           Cancel
         </button>
         <button
-          @click="add"
+          @click="save"
           class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
         >
-          Add
+          Save
         </button>
       </div>
     </div>
@@ -126,26 +126,40 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import vSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css'
 
 // Props
-defineProps({
+const props = defineProps({
   fields: {
     type: Array,
     required: true
-  }
+  },
+  existingCondition: Object // Conditions for editing
 })
 
 // Emits
-const emit = defineEmits(['add', 'cancel'])
+const emit = defineEmits(['save', 'cancel'])
 
 // State
-const ifCondition = ref({ field1: null, field2: null, operator: '' })
+const ifCondition = ref({ first: null, second: null, operator: '' })
 const elseIfConditions = ref([])
 const hasElseBlock = ref(false)
 const elseBlockContent = ref('')
+
+// Populate modal when editing an existing condition
+onMounted(() => {
+  if (props.existingCondition) {
+    ifCondition.value = { ...props.existingCondition.if }
+    elseIfConditions.value = props.existingCondition.elseIf || []
+    elseBlockContent.value = props.existingCondition.else?.content || ''
+
+    if (elseBlockContent.value) {
+      addElse()
+    }
+  }
+})
 
 // Operators
 const operators = ref([
@@ -158,7 +172,7 @@ const operators = ref([
 
 // Methods
 const addElseIf = () => {
-  elseIfConditions.value.push({ field1: null, field2: null, operator: '' })
+  elseIfConditions.value.push({ first: null, second: null, operator: '' })
 }
 
 const removeElseIf = (index) => {
@@ -174,39 +188,32 @@ const removeElse = () => {
   elseBlockContent.value = ''
 }
 
-const add = () => {
-  const conditions = {}
+const save = () => {
+  const condition = {
+    id: props.existingCondition?.id
+  }
 
   // Add the 'if' condition
-  if (ifCondition.value) {
-    conditions.if = {
-      first: ifCondition.value.field1,
-      second: ifCondition.value.field2,
-      operator: ifCondition.value.operator
-    }
-  }
-
-  conditions.elseIf = []
+  condition.if = ifCondition.value
+  condition.elseIf = []
 
   // Add 'else if' conditions if any exist
-  if (elseIfConditions.value.length > 0) {
-    elseIfConditions.value.forEach((cond) => {
-      conditions.elseIf.push({
-        first: cond.field1,
-        second: cond.field2,
-        operator: cond.operator
-      })
+  elseIfConditions.value.forEach((cond) => {
+    condition.elseIf.push({
+      first: cond.field1,
+      second: cond.field2,
+      operator: cond.operator
     })
-  }
+  })
 
   // Add 'else' condition if it exists
   if (hasElseBlock.value) {
-    conditions.else = {
+    condition.else = {
       content: elseBlockContent.value
     }
   }
 
-  emit('add', conditions)
+  emit('save', condition)
   resetFields()
 }
 
@@ -216,7 +223,7 @@ const cancel = () => {
 }
 
 const resetFields = () => {
-  ifCondition.value = { field1: null, field2: null, operator: '' }
+  ifCondition.value = { first: null, second: null, operator: '' }
   elseIfConditions.value = []
   hasElseBlock.value = false
   elseBlockContent.value = ''

@@ -9,10 +9,18 @@ export default Node.create({
   inline: false,
   selectable: true,
   atom: false,
+  addAttributes() {
+    return {
+      id: { default: '' }
+    }
+  },
   parseHTML() {
     return [
       {
-        tag: 'conditional-component'
+        tag: 'conditional-component',
+        getAttrs: (dom) => ({
+          id: dom.getAttribute('id')
+        })
       }
     ]
   },
@@ -20,6 +28,18 @@ export default Node.create({
     return ['conditional-component', 0] // The 0 here means it will render its content
   },
   addNodeView() {
-    return VueNodeViewRenderer(ConditionalComponent)
+    return VueNodeViewRenderer(ConditionalComponent, {
+      // This allows the parent (your editor setup) to handle emitted events
+      props: ['node', 'getPos', 'editor'],
+
+      // Listen to events emitted from ConditionalComponent.vue
+      on: {
+        edit: (conditionId) => {
+          // Implement the logic you want to trigger when "edit" is emitted
+          console.log(`Editing condition with ID: ${conditionId}`)
+          // Call your `handleEdit` or any other function here
+        }
+      }
+    })
   }
 })
